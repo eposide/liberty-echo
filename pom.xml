@@ -47,7 +47,7 @@
                 </plugin>
                 <plugin>
                     <groupId>org.eclipse.jkube</groupId>
-                    <artifactId>kubernetes-maven-plugin</artifactId>
+                    <artifactId>openshift-maven-plugin</artifactId>
                     <version>1.13.0</version>
                 </plugin>
             </plugins>
@@ -59,7 +59,7 @@
             </plugin>
             <plugin>
                 <groupId>org.eclipse.jkube</groupId>
-                <artifactId>kubernetes-maven-plugin</artifactId>
+                <artifactId>openshift-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
