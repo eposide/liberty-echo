@@ -9,58 +9,118 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+   <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <jkube.version>1.13.1</jkube.version>
+        <version.openliberty>19.0.0.9</version.openliberty>
+        <version.microprofile>3.3</version.microprofile>
+        <version.jaeger-client>0.34.0</version.jaeger-client>
+        <version.openliberty-maven>3.2</version.openliberty-maven>
+        <http.port>9080</http.port>
+        <https.port>9443</https.port>
+        <failOnMissingWebXml>false</failOnMissingWebXml>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>jakarta.platform</groupId>
-            <artifactId>jakarta.jakartaee-api</artifactId>
-            <version>9.1.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.microprofile</groupId>
             <artifactId>microprofile</artifactId>
-            <version>5.0</version>
+            <version>${version.microprofile}</version>
             <type>pom</type>
             <scope>provided</scope>
         </dependency>
+
     </dependencies>
 
     <build>
-        <finalName>liberty-echo</finalName>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-war-plugin</artifactId>
-                    <version>3.3.2</version>
-                </plugin>
-                <plugin>
-                    <groupId>io.openliberty.tools</groupId>
-                    <artifactId>liberty-maven-plugin</artifactId>
-                    <version>3.8.2</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.eclipse.jkube</groupId>
-                    <artifactId>openshift-maven-plugin</artifactId>
-                    <version>1.13.0</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.eclipse.jkube</groupId>
-                <artifactId>openshift-maven-plugin</artifactId>
+                <version>${version.openliberty-maven}</version>
+                <executions>
+                    <execution>
+                        <id>package-server</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>create</goal>
+                            <goal>install-feature</goal>
+                            <goal>deploy</goal>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+                            <looseApplication>true</looseApplication>
+                            <stripVersion>true</stripVersion>
+                            <installAppPackages>project</installAppPackages>
+                            <packageName>${project.artifactId}</packageName>
+                            <packageType>jar</packageType>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <include>runnable</include>
+                    <serverName>${final.name}</serverName>
+                    <bootstrapProperties>
+                        <default.http.port>${http.port}</default.http.port>
+                        <default.https.port>${https.port}</default.https.port>
+                        <app.context.root>/</app.context.root>
+                        <package.name>${project.artifactId}</package.name>
+                    </bootstrapProperties>
+                </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>kubernetes</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.eclipse.jkube</groupId>
+                        <artifactId>kubernetes-maven-plugin</artifactId>
+                        <version>${jkube.version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>resource</goal>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <enricher>
+                                <config>
+                                    <jkube-service>
+                                        <type>NodePort</type>
+                                    </jkube-service>
+                                </config>
+                            </enricher>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>openshift</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.eclipse.jkube</groupId>
+                        <artifactId>openshift-maven-plugin</artifactId>
+                        <version>${jkube.version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>resource</goal>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
