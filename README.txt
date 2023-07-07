@@ -6,7 +6,7 @@ When using openshift you would need to authenticate using a token that you got f
 OpenShift using your credentials.
 
 e.g.
-oc login --token=sha256~PbxvogsimWXyMCJMYJC9dybUmRxa3-S6ouadGz7d_mc --server=https://api.ocp.novadoc.com:6443
+oc login --token=sha256~PbxvogsimWXyMCJMYJC9dybUmRxa3-S6ouadGz7d_mc --server=https://api.ocp.yourinstance.com:6443
 
 to build and deploy
 
